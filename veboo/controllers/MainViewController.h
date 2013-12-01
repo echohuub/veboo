@@ -7,7 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "BaseViewController.h"
+#import "SinaWeibo.h"
 
-@interface MainViewController : UIViewController
+@interface MainViewController : BaseViewController<UITableViewDelegate, UITableViewDataSource, SinaWeiboDelegate>
+{
+    UITableView *_tableView;
+}
+
+@property (nonatomic, retain) NSMutableArray *statuses;
 
 @end

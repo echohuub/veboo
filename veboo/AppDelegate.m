@@ -7,48 +7,46 @@
 //
 
 #import "AppDelegate.h"
+#import "SinaWeibo.h"
+
 #import "MainViewController.h"
 
 @implementation AppDelegate
+
+#pragma mark -
+#pragma mark - Life cycle
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     
-    MainViewController *mainCtrl = [[MainViewController alloc] init];
-    self.window.rootViewController = mainCtrl;
-    [mainCtrl release];
+    _mainCtrl = [[MainViewController alloc] init];
+    UINavigationController *navCtrl = [[UINavigationController alloc] initWithRootViewController:_mainCtrl];
+    
+    self.window.rootViewController = navCtrl;
+    
+    // release
+    [_mainCtrl release];
+    [navCtrl release];
+    [_window release];
+    
+    [self initSinaWeibo];
     
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application
+- (void)initSinaWeibo
 {
-    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-    // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-}
-
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
-    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
-}
-
-- (void)applicationWillEnterForeground:(UIApplication *)application
-{
-    // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
-}
-
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-}
-
-- (void)applicationWillTerminate:(UIApplication *)application
-{
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    _sinaWeibo = [[SinaWeibo alloc] initWithAppKey:kAppKey appSecret:kAppSecret appRedirectURI:kRedirectURI andDelegate:(id<SinaWeiboDelegate>)_mainCtrl];
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSDictionary *authData = [userDefaults objectForKey:WEIBO_AUTH_DATA_KEY];
+    if (authData) {
+        _sinaWeibo.accessToken = [authData objectForKey:WEIBO_ACCESS_TOKEN_KEY];
+        _sinaWeibo.expirationDate = [authData objectForKey:WEIBO_EXPIRATION_DATE_KEY];
+        _sinaWeibo.userID = [authData objectForKey:WEIBO_USER_ID];
+    }
 }
 
 @end
